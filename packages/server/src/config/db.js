@@ -1,26 +1,21 @@
 import mongoose from 'mongoose';
+import { loadEnv } from './env.js';
 
 const READY_STATES = ['disconnected', 'connected', 'connecting', 'disconnecting'];
 
 /**
- * Connect to MongoDB without blocking server startup.
- *
- * The server stays up even when Mongo is unreachable so /api/health can
- * report *which* half is broken. 
+ * Connect to MongoDB without blocking server startup, so /api/health can
+ * report which half is broken. A skeleton that dies silently on a bad
+ * connection string is much harder to debug than one that tells you.
  */
 export async function connectDb() {
-  const uri = process.env.MONGO_URI;
-
-  if (!uri) {
-    console.error('[db] MONGODB_URI is not set — copy .env.example to .env at the repo root');
-    return;
-  }
+  const { mongoUri } = loadEnv();
 
   mongoose.connection.on('disconnected', () => console.warn('[db] disconnected'));
   mongoose.connection.on('reconnected', () => console.log('[db] reconnected'));
 
   try {
-    await mongoose.connect(uri, { serverSelectionTimeoutMS: 8000 });
+    await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 8000 });
     console.log(`[db] connected to ${mongoose.connection.name}`);
   } catch (err) {
     console.error(`[db] connection failed: ${err.message}`);

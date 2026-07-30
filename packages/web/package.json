@@ -11,8 +11,11 @@
   },
   "dependencies": {
     "@ct/shared": "*",
+    "@hookform/resolvers": "^5.5.7",
     "react": "^19",
     "react-dom": "^19",
+    "react-hook-form": "^7.83.0",
+    "react-router-dom": "^7.18.2",
     "zustand": "^5"
   },
   "devDependencies": {

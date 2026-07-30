@@ -1,13 +1,13 @@
 import { createApp } from './app.js';
+import { loadEnv } from './config/env.js';
 import { connectDb, disconnectDb } from './config/db.js';
 
-const PORT = Number(process.env.PORT ?? 4000);
-
+const env = loadEnv();
 const app = createApp();
 
-const server = app.listen(PORT, () => {
-  console.log(`[server] listening on http://localhost:${PORT}`);
-  console.log(`[server] health check: http://localhost:${PORT}/api/health`);
+const server = app.listen(env.port, () => {
+  console.log(`[server] listening on http://localhost:${env.port}`);
+  console.log(`[server] health check: http://localhost:${env.port}/api/health`);
 });
 
 // Deliberately not awaited: the HTTP server comes up regardless so that

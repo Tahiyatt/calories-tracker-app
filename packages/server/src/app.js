@@ -1,34 +1,39 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
+import { loadEnv } from './config/env.js';
 import healthRouter from './routes/health.js';
-// import { notFound, errorHandler } from './middleware/errorHandler.js';
+import authRouter from './routes/auth.js';
+import entriesRouter from './routes/entries.js';
+import goalsRouter from './routes/goals.js';
+import weightsRouter from './routes/weights.js';
+import { requireAuth } from './middleware/requireAuth.js';
+import { notFound, errorHandler } from './middleware/errorHandler.js';
 
 export function createApp() {
+  const env = loadEnv();
   const app = express();
 
-  // In development the Vite dev server proxies /api, so CORS isn't hit at all.
-  // It matters once the web app is deployed to a different origin, and again
-  // for the React Native client in Phase 6.
-  app.use(
-    cors({
-      origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
-      credentials: true,
-    }),
-  );
-
+  // credentials:true is required for the browser to send the httpOnly refresh
+  // cookie cross-origin. In development Vite proxies /api, so this matters once
+  // the web app is deployed to a different origin, and for React Native later.
+  app.use(cors({ origin: env.corsOrigin, credentials: true }));
   app.use(express.json({ limit: '100kb' }));
+  app.use(cookieParser());
 
   app.use('/api', healthRouter);
+  app.use('/api/auth', authRouter);
 
-  // Routers land here as Phase 1 progresses:
-  // app.use('/api/auth', authRouter);
-  // app.use('/api/entries', requireAuth, foodEntryRouter);
-  // app.use('/api/goals', requireAuth, goalRouter);
-  // app.use('/api/weights', requireAuth, weightLogRouter);
+  // requireAuth mounted here rather than per-route: every entry, goal and
+  // weight is owned by a user, so there is no unauthenticated path worth
+  // leaving open by accident.
+  app.use('/api/entries', requireAuth, entriesRouter);
+  app.use('/api/goals', requireAuth, goalsRouter);
+  app.use('/api/weights', requireAuth, weightsRouter);
 
-//   app.use(notFound);
-//   app.use(errorHandler);
+  app.use(notFound);
+  app.use(errorHandler);
 
   return app;
 }

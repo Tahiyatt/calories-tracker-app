@@ -1,29 +1,62 @@
 {
 
   "name": "calorie-tracker",
+
   "version": "0.1.0",
+
   "private": true,
+
   "type": "module",
+
   "workspaces": [
+
     "packages/*"
+
   ],
+
   "scripts": {
+
     "dev": "concurrently -n server,web -c blue,magenta \"npm:dev:server\" \"npm:dev:web\"",
+
     "dev:server": "npm run dev --workspace=@ct/server",
+
     "dev:web": "npm run dev --workspace=@ct/web",
+
     "build": "npm run build --workspace=@ct/web",
+
     "lint": "eslint .",
+
     "lint:fix": "eslint . --fix"
+
   },
+
   "devDependencies": {
+
     "@eslint/js": "^9",
+
     "concurrently": "^9",
+
     "eslint": "^9",
+
     "eslint-plugin-react": "^7",
+
     "eslint-plugin-react-hooks": "^5",
+
     "globals": "^15"
+
   },
+
   "engines": {
+
     "node": ">=22"
+
+  },
+
+  "dependencies": {
+
+    "cookie-parser": "^1.4.7"
+
   }
+
 }
+
