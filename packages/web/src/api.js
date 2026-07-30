@@ -89,6 +89,8 @@ export const api = {
     request(`/foods/search?q=${encodeURIComponent(q)}&remote=${remote}&limit=${limit}`),
   foodByBarcode: (barcode) => request(`/foods/barcode/${encodeURIComponent(barcode)}`),
 
+  dashboard: (days = 30) => request(`/analytics/dashboard?days=${days}`),
+
   today: () => request('/entries/today'),
   entriesFor: (date) => request(`/entries?date=${date}`),
   quickAdd: (payload) => request('/entries/quick', { method: 'POST', body: payload }),

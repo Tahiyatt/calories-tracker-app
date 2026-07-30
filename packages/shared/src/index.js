@@ -1,6 +1,7 @@
 export * from './constants.js';
 export * from './nutrition.js';
 export * from './dates.js';
+export * from './analytics.js';
 
 export * from './schemas/common.js';
 export * from './schemas/user.js';

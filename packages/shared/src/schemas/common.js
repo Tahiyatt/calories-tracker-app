@@ -15,3 +15,14 @@ const nutrientShape = Object.fromEntries(
 );
 
 export const nutrients = z.object(nutrientShape);
+
+/** Shared date-range query for the analytics endpoints. */
+export const rangeQuery = z
+  .object({
+    from: localDate.optional(),
+    to: localDate.optional(),
+    days: z.coerce.number().int().min(1).max(366).optional(),
+  })
+  .refine((d) => !(d.days && (d.from || d.to)), {
+    message: 'Use either days, or from/to — not both',
+  });

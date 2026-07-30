@@ -7,7 +7,8 @@ export default function Nav() {
   return (
     <nav className="nav">
       <div className="nav-links">
-        <NavLink to="/">Today</NavLink>
+        <NavLink to="/">Dashboard</NavLink>
+        <NavLink to="/today">Today</NavLink>
         <NavLink to="/goals">Goals</NavLink>
         <NavLink to="/weight">Weight</NavLink>
       </div>

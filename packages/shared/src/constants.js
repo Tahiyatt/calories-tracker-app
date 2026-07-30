@@ -21,3 +21,12 @@ export const NUTRIENT_KEYS = [
 ];
 
 export const MACRO_KEYS = ['protein', 'carbs', 'fat'];
+
+/**
+ * Atwater factors: kcal per gram of each macronutrient. Used to work out what
+ * share of a day's calories came from protein, carbs and fat.
+ */
+export const KCAL_PER_GRAM = { protein: 4, carbs: 4, fat: 9 };
+
+/** Preset windows for the dashboard. */
+export const RANGE_PRESETS = [7, 30, 90];

@@ -1,10 +1,36 @@
+/*
+ * Design direction: the printed nutrition facts panel.
+ *
+ * The most characteristic artefact in this app's subject is the label on the
+ * back of a packet — heavy horizontal rules of deliberately varying weight,
+ * tabular figures aligned right, and a "% of target" column that echoes %DV.
+ * That vernacular drives the rules, the type and the layout here.
+ *
+ * Boldness is spent in one place: the daily panel at the top of the dashboard.
+ * Everything else stays quiet.
+ */
+
 :root {
-  --ink: #1c1c1a;
-  --muted: #6b6b66;
-  --line: #dcdcd6;
-  --paper: #fbfbf9;
-  --ok: #1d6b4f;
-  --bad: #9c2f2f;
+  --paper: #fafaf8;
+  --panel: #ffffff;
+  --ink: #16161a;
+  --muted: #6e6e76;
+  --hairline: #e2e2dd;
+
+  /* Macro palette: pine / mustard / plum. Distinguishable, and not the
+     blue-green-orange default every charting library ships with. */
+  --protein: #14625b;
+  --carbs: #c9a227;
+  --fat: #7a4e7e;
+
+  --on-target: #14625b;
+  --over: #a3352b;
+
+  --font-display: 'Archivo', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --font-data: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+
+  --measure: 46rem;
   color-scheme: light;
 }
 
@@ -12,158 +38,379 @@
 
 body {
   margin: 0;
-  padding: 2rem 1.25rem;
+  padding: 1.75rem 1.25rem 4rem;
   background: var(--paper);
   color: var(--ink);
-  font: 16px/1.6 system-ui, -apple-system, sans-serif;
+  font: 400 15px/1.6 var(--font-body);
+  -webkit-font-smoothing: antialiased;
 }
 
-main { max-width: 40rem; margin: 0 auto; }
+.shell { max-width: var(--measure); margin: 0 auto; }
 
-h1 { font-size: 1.5rem; font-weight: 600; margin: 0 0 0.25rem; }
+/* ---------- type scale ---------- */
 
-.subtitle { color: var(--muted); margin: 0 0 2rem; }
-
-section {
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 1.25rem;
-  margin-bottom: 1rem;
-  background: #fff;
+h1 {
+  font: 700 1.5rem/1.15 var(--font-display);
+  letter-spacing: -0.01em;
+  margin: 0 0 0.25rem;
 }
 
-h2 { font-size: 1rem; font-weight: 600; margin: 0 0 0.75rem; }
-
-dl { display: grid; grid-template-columns: auto 1fr; gap: 0.4rem 1rem; margin: 0; }
-dt { color: var(--muted); }
-dd { margin: 0; font-variant-numeric: tabular-nums; }
-
-.ok { color: var(--ok); font-weight: 600; }
-.bad { color: var(--bad); font-weight: 600; }
-
-button {
-  font: inherit;
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--ink);
-  border-radius: 6px;
-  background: var(--ink);
-  color: #fff;
-  cursor: pointer;
+h2 {
+  font: 700 0.75rem/1 var(--font-display);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  margin: 0 0 0.75rem;
 }
 
-button:disabled { opacity: 0.5; cursor: default; }
-
-button:focus-visible {
-  outline: 2px solid var(--ok);
-  outline-offset: 2px;
+h3 {
+  font: 600 0.95rem/1.3 var(--font-body);
+  margin: 0 0 0.6rem;
 }
 
-code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.9em;
-  background: #f2f2ee;
-  padding: 0.1em 0.35em;
-  border-radius: 4px;
-}
+.subtitle { color: var(--muted); margin: 0 0 1.75rem; }
+.muted { color: var(--muted); }
+.hint { color: var(--muted); font-size: 0.85rem; margin: 0.6rem 0 0; }
+.centered { text-align: center; color: var(--muted); padding: 4rem 0; }
 
-.hint { color: var(--muted); font-size: 0.9rem; margin: 0.75rem 0 0; }
+.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
 
-/* ---- Phase 1 additions. Still deliberately plain; Phase 3 is the design pass. ---- */
-
-.shell { max-width: 44rem; margin: 0 auto; }
-
-.centered { text-align: center; color: var(--muted); padding: 3rem 0; }
+/* ---------- nav ---------- */
 
 .nav {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
   flex-wrap: wrap;
   gap: 0.75rem;
-  padding-bottom: 1rem;
+  padding-bottom: 0.75rem;
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 2px solid var(--ink);
 }
 
-.nav-links { display: flex; gap: 1rem; }
-.nav-links a { color: var(--muted); text-decoration: none; }
-.nav-links a:hover { color: var(--ink); }
-.nav-links a.active { color: var(--ink); font-weight: 600; }
-.nav-user { display: flex; align-items: center; gap: 0.75rem; color: var(--muted); font-size: 0.9rem; }
+.nav-links { display: flex; gap: 1.1rem; }
 
-.auth-page { max-width: 22rem; margin: 3rem auto; }
+.nav-links a {
+  font: 600 0.72rem/1 var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  padding-bottom: 0.2rem;
+}
+
+.nav-links a:hover { color: var(--ink); }
+
+.nav-links a.active {
+  color: var(--ink);
+  box-shadow: inset 0 -3px 0 var(--ink);
+}
+
+.nav-user {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+/* ---------- sections ---------- */
+
+section { margin-bottom: 2.25rem; }
+
+.card {
+  border: 1px solid var(--hairline);
+  background: var(--panel);
+  padding: 1.1rem 1.15rem;
+}
+
+/* ---------- the signature: nutrition panel ---------- */
+
+.np {
+  background: var(--panel);
+  border: 1px solid var(--ink);
+  border-top: 9px solid var(--ink);
+  padding: 0.9rem 1.1rem 1.1rem;
+}
+
+.np-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.np-title {
+  font: 700 1.15rem/1 var(--font-display);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.np-date { font-family: var(--font-data); font-size: 0.8rem; color: var(--muted); }
+
+.np-servings {
+  font-size: 0.8rem;
+  color: var(--muted);
+  padding-bottom: 0.55rem;
+  border-bottom: 5px solid var(--ink);
+}
+
+.np-kcal {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0.55rem 0;
+  border-bottom: 3px solid var(--ink);
+}
+
+.np-kcal-label { font: 700 1.05rem/1 var(--font-display); }
+
+.np-kcal-value {
+  font: 600 2.4rem/0.9 var(--font-data);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.np-kcal-target { font-size: 0.8rem; color: var(--muted); font-family: var(--font-data); }
+
+.np-row {
+  display: grid;
+  grid-template-columns: 1fr auto 3.2rem;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.np-row:last-of-type { border-bottom: 1px solid var(--ink); }
+
+.np-row-name { font-weight: 500; }
+
+.np-row-swatch {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-right: 0.45rem;
+}
+
+.np-row-amount { font-family: var(--font-data); font-size: 0.85rem; }
+.np-row-amount .muted { font-size: 0.8rem; }
+
+.np-row-pct {
+  font-family: var(--font-data);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+.np-row-pct.is-over { color: var(--over); }
+
+/* The %DV bar, reinterpreted. Full width = the target. */
+.np-bar {
+  grid-column: 1 / -1;
+  height: 4px;
+  background: var(--hairline);
+  overflow: hidden;
+}
+
+.np-bar-fill { display: block; height: 100%; }
+.np-bar-fill.is-over { background: var(--over) !important; }
+
+.np-foot {
+  font-size: 0.75rem;
+  color: var(--muted);
+  padding-top: 0.6rem;
+}
+
+/* ---------- stat blocks ---------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 1px;
+  background: var(--hairline);
+  border: 1px solid var(--hairline);
+}
+
+.stat { background: var(--panel); padding: 0.85rem 0.95rem; }
+
+.stat-label {
+  font: 600 0.65rem/1 var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.stat-value {
+  font: 600 1.7rem/1 var(--font-data);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-unit { font-size: 0.8rem; color: var(--muted); margin-left: 0.2rem; }
+
+/* ---------- charts ---------- */
+
+.chart { width: 100%; height: 15rem; }
+.chart-tall { height: 17rem; }
+
+.chart-tip {
+  background: var(--panel);
+  border: 1px solid var(--ink);
+  padding: 0.5rem 0.65rem;
+  font-family: var(--font-data);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.chart-tip-date { font-weight: 600; margin-bottom: 0.25rem; }
+.chart-tip-row { display: flex; justify-content: space-between; gap: 1.25rem; }
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+.legend-item { display: flex; align-items: center; gap: 0.35rem; }
+.legend-swatch { width: 0.6rem; height: 0.6rem; }
+
+.two-up { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+/* ---------- meal bars ---------- */
+
+.meal-row {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr 4rem;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.4rem 0;
+}
+
+.meal-name { font-size: 0.85rem; text-transform: capitalize; }
+.meal-track { height: 14px; background: var(--hairline); }
+.meal-fill { height: 100%; background: var(--ink); }
+.meal-kcal { font-family: var(--font-data); font-size: 0.8rem; text-align: right; }
+
+/* ---------- range picker ---------- */
+
+.range-picker { display: flex; gap: 0.4rem; }
+
+.range-picker button {
+  font: 600 0.7rem/1 var(--font-display);
+  letter-spacing: 0.06em;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--hairline);
+  background: var(--panel);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.range-picker button.active {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* ---------- forms ---------- */
 
 form { display: flex; flex-direction: column; gap: 0.9rem; }
 
 .field { display: flex; flex-direction: column; gap: 0.3rem; }
-.field-label { font-size: 0.85rem; color: var(--muted); }
-.field-hint { font-size: 0.8rem; color: var(--muted); }
-.field-error { font-size: 0.8rem; color: var(--bad); }
+
+.field-label {
+  font: 600 0.68rem/1 var(--font-display);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.field-hint { font-size: 0.78rem; color: var(--muted); }
+.field-error { font-size: 0.78rem; color: var(--over); }
 
 input, select {
-  font: inherit;
+  font: 400 0.95rem var(--font-body);
   padding: 0.5rem 0.6rem;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: #fff;
+  border: 1px solid var(--hairline);
+  background: var(--panel);
   color: var(--ink);
 }
 
-input:focus-visible, select:focus-visible {
-  outline: 2px solid var(--ok);
-  outline-offset: 1px;
+input[type='number'] { font-family: var(--font-data); }
+
+input:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--on-target);
+  outline-offset: 2px;
 }
 
-.form-error {
-  color: var(--bad);
-  font-size: 0.9rem;
-  margin: 0;
+.form-error { color: var(--over); font-size: 0.88rem; margin: 0; }
+
+button {
+  font: 600 0.8rem/1 var(--font-display);
+  letter-spacing: 0.04em;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
 }
+
+button:disabled { opacity: 0.45; cursor: default; }
+
+button.secondary { background: var(--panel); color: var(--ink); border-color: var(--hairline); }
+button.secondary:hover:not(:disabled) { border-color: var(--ink); }
 
 .link-button {
   background: none;
   border: none;
   padding: 0;
+  font: 400 0.8rem var(--font-body);
+  letter-spacing: 0;
   color: var(--muted);
   text-decoration: underline;
   cursor: pointer;
-  font-size: 0.85rem;
 }
 
-.link-button:hover { color: var(--bad); }
+.link-button:hover { color: var(--over); }
+
+.auth-page { max-width: 21rem; margin: 3.5rem auto; }
+
+/* ---------- day log ---------- */
 
 .day-header {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 5px solid var(--ink);
 }
 
 .day-header h1 { margin: 0; }
+.day-header button { padding: 0.3rem 0.7rem; }
 
-.day-header button {
-  padding: 0.35rem 0.8rem;
-  background: #fff;
-  color: var(--ink);
-}
-
+.totals { display: grid; grid-template-columns: auto 1fr; gap: 0.35rem 1rem; margin: 0; }
+.totals dt { color: var(--muted); font-size: 0.85rem; }
+.totals dd { margin: 0; font-family: var(--font-data); font-variant-numeric: tabular-nums; }
 .totals-row { display: contents; }
+
+.mode-toggle { display: flex; gap: 0.4rem; margin-bottom: 1.1rem; }
 
 .quick-add { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.9rem; }
 .quick-add button { grid-column: 1 / -1; }
 
-@media (max-width: 30rem) {
-  .quick-add { grid-template-columns: 1fr; }
-}
+.meal-group { margin-bottom: 1.1rem; }
 
-.meal-group { margin-bottom: 1.25rem; }
 .meal-group h3 {
-  font-size: 0.8rem;
+  font: 600 0.68rem/1 var(--font-display);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
   color: var(--muted);
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.4rem;
 }
 
 .entry-list { list-style: none; margin: 0; padding: 0; }
@@ -172,28 +419,17 @@ input:focus-visible, select:focus-visible {
   display: flex;
   align-items: baseline;
   gap: 0.75rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--line);
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--hairline);
 }
 
 .entry-name { flex: 1; }
-.entry-kcal { font-variant-numeric: tabular-nums; color: var(--muted); }
+.entry-kcal { font-family: var(--font-data); font-size: 0.85rem; color: var(--muted); }
 
-/* ---- Phase 2: food search ---- */
+/* ---------- food search ---------- */
 
-.mode-toggle { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
-
-button.secondary {
-  background: #fff;
-  color: var(--ink);
-  border: 1px solid var(--line);
-}
-
-button.secondary:hover { border-color: var(--ink); }
-
-.food-search { display: flex; flex-direction: column; gap: 0.75rem; }
-
-.search-results { max-height: 18rem; overflow-y: auto; }
+.food-search { display: flex; flex-direction: column; gap: 0.7rem; }
+.search-results { max-height: 17rem; overflow-y: auto; }
 
 .result-button {
   display: flex;
@@ -206,33 +442,30 @@ button.secondary:hover { border-color: var(--ink); }
   color: inherit;
   text-align: left;
   cursor: pointer;
-  font: inherit;
+  font: 400 0.95rem var(--font-body);
+  letter-spacing: 0;
 }
 
 .result-button:hover .entry-name { text-decoration: underline; }
 
-.serving-picker {
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 1rem;
-  background: var(--paper);
-}
-
-.serving-picker h3 { margin: 0 0 0.75rem; font-size: 1rem; }
-
-.picker-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
+.serving-picker { border: 1px solid var(--ink); padding: 1rem; background: var(--panel); }
+.serving-picker h3 { margin-top: 0; }
+.picker-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
 .picker-grid .wide { grid-column: 1 / -1; }
-
 .preview { margin-bottom: 1rem; }
-
 .picker-actions { display: flex; gap: 0.5rem; }
 
-@media (max-width: 30rem) {
-  .picker-grid { grid-template-columns: 1fr; }
+/* ---------- responsive ---------- */
+
+@media (max-width: 34rem) {
+  .two-up { grid-template-columns: 1fr; }
+  .quick-add, .picker-grid { grid-template-columns: 1fr; }
+  .np-kcal-value { font-size: 2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
