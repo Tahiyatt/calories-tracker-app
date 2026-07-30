@@ -17,6 +17,10 @@ export function createApp() {
   const env = loadEnv();
   const app = express();
 
+  // Behind Render's load balancer, so req.ip and req.secure must come from
+  // X-Forwarded-* rather than the socket. The rate limiter keys on req.ip.
+  if (env.trustProxy) app.set('trust proxy', Number(env.trustProxy) || env.trustProxy);
+
   // credentials:true is required for the browser to send the httpOnly refresh
   // cookie cross-origin. In development Vite proxies /api, so this matters once
   // the web app is deployed to a different origin, and for React Native later.

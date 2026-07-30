@@ -20,6 +20,8 @@ export function loadEnv() {
     process.exit(1);
   }
 
+  const isProduction = process.env.NODE_ENV === 'production';
+
   return {
     port: Number(process.env.PORT ?? 4000),
     mongoUri: process.env.MONGODB_URI,
@@ -28,6 +30,16 @@ export function loadEnv() {
     refreshSecret: process.env.JWT_REFRESH_SECRET,
     accessTtl: process.env.JWT_ACCESS_TTL ?? '15m',
     refreshTtlDays: Number(process.env.JWT_REFRESH_TTL_DAYS ?? 30),
-    isProduction: process.env.NODE_ENV === 'production',
+    isProduction,
+
+    // Cookie behaviour is configuration, not a hardcoded consequence of
+    // NODE_ENV. Behind the Vercel rewrite the API is same-origin, so 'lax' is
+    // correct and safer. Only a direct cross-origin setup needs 'none'.
+    cookieSecure: (process.env.COOKIE_SECURE ?? String(isProduction)) === 'true',
+    cookieSameSite: process.env.COOKIE_SAMESITE ?? 'lax',
+
+    // Render terminates TLS at a proxy. Without this Express sees the proxy's
+    // IP (breaking per-user rate limiting) and misjudges req.secure.
+    trustProxy: process.env.TRUST_PROXY ?? (isProduction ? '1' : ''),
   };
 }

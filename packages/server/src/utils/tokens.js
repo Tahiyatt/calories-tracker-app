@@ -46,8 +46,8 @@ export function verifyRefreshToken(token) {
 export function refreshCookieOptions() {
   return {
     httpOnly: true,
-    secure: env.isProduction,
-    sameSite: env.isProduction ? 'none' : 'lax',
+    secure: env.cookieSecure,
+    sameSite: env.cookieSameSite,
     path: '/api/auth',
     maxAge: env.refreshTtlDays * 24 * 60 * 60 * 1000,
   };

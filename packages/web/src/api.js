@@ -1,4 +1,17 @@
 /**
+ * Base URL for the API.
+ *
+ * Empty by default, so requests go to /api on the same origin. That works in
+ * development via Vite's proxy and in production via Vercel's rewrite — and
+ * same-origin is the point, because it keeps the refresh cookie first-party.
+ * A third-party cookie on onrender.com would be blocked outright by Safari.
+ *
+ * VITE_API_URL is an escape hatch for clients that cannot proxy, such as the
+ * React Native app in Phase 6.
+ */
+const BASE = import.meta.env?.VITE_API_URL ?? '';
+
+/**
  * The access token lives in a module variable, never localStorage.
  *
  * Anything in localStorage is readable by any script on the page, so an XSS bug
@@ -19,7 +32,7 @@ async function refreshAccessToken() {
   // wait on one refresh, not race three.
   refreshInFlight ??= (async () => {
     try {
-      const res = await fetch('/api/auth/refresh', {
+      const res = await fetch(`${BASE}/api/auth/refresh`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -36,7 +49,7 @@ async function refreshAccessToken() {
 }
 
 async function send(path, { method = 'GET', body, headers = {} } = {}) {
-  const res = await fetch(`/api${path}`, {
+  const res = await fetch(`${BASE}/api${path}`, {
     method,
     credentials: 'include',
     headers: {
