@@ -7,7 +7,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://calorie-tracker-api-1g6u.onrender.com"
+      "destination": "https://calorie-tracker-api-1g6u.onrender.com/api/:path*"
     },
     {
       "source": "/(.*)",
