@@ -26,4 +26,23 @@ export const createUserFoodSchema = foodSchema.omit({
 export const foodSearchSchema = z.object({
   q: z.string().trim().min(2, 'Search for at least 2 characters').max(100),
   limit: z.coerce.number().int().min(1).max(50).default(20),
+  // Opt in to hitting Open Food Facts. Off by default: their search endpoint
+  // allows 10 requests/minute per IP and the docs explicitly say not to use it
+  // for search-as-you-type, so remote lookups must be a deliberate action.
+  remote: z
+    .union([z.boolean(), z.enum(['true', 'false'])])
+    .transform((v) => v === true || v === 'true')
+    .default(false),
+});
+
+/**
+ * EAN-8 / UPC-A / EAN-13. Kept loose on purpose — Open Food Facts normalises
+ * barcodes itself, and rejecting an odd-length code here would just block a
+ * lookup that would have worked.
+ */
+export const barcodeSchema = z.object({
+  barcode: z
+    .string()
+    .trim()
+    .regex(/^\d{8,14}$/, 'A barcode is 8 to 14 digits'),
 });

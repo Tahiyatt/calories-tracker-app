@@ -34,6 +34,15 @@ export const useEntriesStore = create((set, get) => ({
     }
   },
 
+  addFromFood: async (input) => {
+    const { entry } = await api.addEntry(input);
+    if (entry.localDate === get().date) {
+      const entries = [...get().entries, entry];
+      set({ entries, totals: recompute(entries) });
+    }
+    return entry;
+  },
+
   quickAdd: async (input) => {
     const { entry } = await api.quickAdd(input);
     // Only splice it in if it belongs to the day being viewed.

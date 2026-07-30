@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -12,14 +12,18 @@ import {
 import { useEntriesStore } from '../store/useEntriesStore.js';
 import { useGoalStore } from '../store/useGoalStore.js';
 import Field from '../components/Field.jsx';
+import FoodSearch from '../components/FoodSearch.jsx';
+import ServingPicker from '../components/ServingPicker.jsx';
 
 // The form does not collect consumedAt — it's set at submit time — so drop it
 // from the schema rather than writing a second, drifting copy.
 const quickAddFormSchema = quickAddFoodEntrySchema.omit({ consumedAt: true });
 
 export default function Today() {
-  const { date, entries, totals, status, error, load, setDate, quickAdd, remove } =
+  const { date, entries, totals, status, error, load, setDate, quickAdd, addFromFood, remove } =
     useEntriesStore();
+  const [mode, setMode] = useState('search'); // search | manual
+  const [pickedFood, setPickedFood] = useState(null);
   const { goal, load: loadGoal } = useGoalStore();
 
   useEffect(() => { load(); loadGoal(); }, [load, loadGoal]);
@@ -79,49 +83,85 @@ export default function Today() {
 
       <section>
         <h2>Log something</h2>
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="quick-add">
-          <Field label="Food" error={formState.errors.name?.message}>
-            <input placeholder="Greek yogurt" {...register('name')} />
-          </Field>
 
-          <Field label="Meal" error={formState.errors.mealType?.message}>
-            <select {...register('mealType')}>
-              {MEAL_TYPES.map((m) => (
-                <option key={m} value={m}>{m}</option>
-              ))}
-            </select>
-          </Field>
-
-          <Field label="Calories" error={formState.errors.nutrients?.kcal?.message}>
-            <input
-              type="number"
-              step="1"
-              placeholder="100"
-              {...register('nutrients.kcal', { valueAsNumber: true })}
-            />
-          </Field>
-
-          {MACRO_KEYS.map((key) => (
-            <Field
-              key={key}
-              label={`${key} (g)`}
-              error={formState.errors.nutrients?.[key]?.message}
-            >
-              <input
-                type="number"
-                step="0.1"
-                {...register(`nutrients.${key}`, { valueAsNumber: true })}
-              />
-            </Field>
-          ))}
-
-          <button type="submit" disabled={formState.isSubmitting}>
-            {formState.isSubmitting ? 'Adding…' : 'Add entry'}
+        <div className="mode-toggle">
+          <button
+            type="button"
+            className={mode === 'search' ? '' : 'secondary'}
+            onClick={() => { setMode('search'); setPickedFood(null); }}
+          >
+            Search foods
           </button>
-        </form>
-        <p className="hint">
-          Typing calories by hand is the Phase 1 path. Phase 2 adds food search.
-        </p>
+          <button
+            type="button"
+            className={mode === 'manual' ? '' : 'secondary'}
+            onClick={() => { setMode('manual'); setPickedFood(null); }}
+          >
+            Enter manually
+          </button>
+        </div>
+
+        {mode === 'search' && !pickedFood && <FoodSearch onPick={setPickedFood} />}
+
+        {mode === 'search' && pickedFood && (
+          <ServingPicker
+            food={pickedFood}
+            onCancel={() => setPickedFood(null)}
+            onAdd={async (payload) => {
+              await addFromFood(payload);
+              setPickedFood(null);
+            }}
+          />
+        )}
+
+        {mode === 'manual' && (
+          <>
+            <form onSubmit={handleSubmit(onSubmit)} noValidate className="quick-add">
+              <Field label="Food" error={formState.errors.name?.message}>
+                <input placeholder="Greek yogurt" {...register('name')} />
+              </Field>
+
+              <Field label="Meal" error={formState.errors.mealType?.message}>
+                <select {...register('mealType')}>
+                  {MEAL_TYPES.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </Field>
+
+              <Field label="Calories" error={formState.errors.nutrients?.kcal?.message}>
+                <input
+                  type="number"
+                  step="1"
+                  placeholder="100"
+                  {...register('nutrients.kcal', { valueAsNumber: true })}
+                />
+              </Field>
+
+              {MACRO_KEYS.map((key) => (
+                <Field
+                  key={key}
+                  label={`${key} (g)`}
+                  error={formState.errors.nutrients?.[key]?.message}
+                >
+                  <input
+                    type="number"
+                    step="0.1"
+                    {...register(`nutrients.${key}`, { valueAsNumber: true })}
+                  />
+                </Field>
+              ))}
+
+              <button type="submit" disabled={formState.isSubmitting}>
+                {formState.isSubmitting ? 'Adding…' : 'Add entry'}
+              </button>
+            </form>
+            <p className="hint">
+              Use this for anything Open Food Facts does not have — home cooking, or a
+              product with missing nutrition data.
+            </p>
+          </>
+        )}
       </section>
 
       <section>

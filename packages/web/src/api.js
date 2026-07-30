@@ -85,9 +85,14 @@ export const api = {
   me: () => request('/auth/me'),
   refresh: refreshAccessToken,
 
+  searchFoods: (q, { remote = false, limit = 20 } = {}) =>
+    request(`/foods/search?q=${encodeURIComponent(q)}&remote=${remote}&limit=${limit}`),
+  foodByBarcode: (barcode) => request(`/foods/barcode/${encodeURIComponent(barcode)}`),
+
   today: () => request('/entries/today'),
   entriesFor: (date) => request(`/entries?date=${date}`),
   quickAdd: (payload) => request('/entries/quick', { method: 'POST', body: payload }),
+  addEntry: (payload) => request('/entries', { method: 'POST', body: payload }),
   updateEntry: (id, patch) => request(`/entries/${id}`, { method: 'PATCH', body: patch }),
   deleteEntry: (id) => request(`/entries/${id}`, { method: 'DELETE' }),
 

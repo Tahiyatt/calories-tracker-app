@@ -6,6 +6,7 @@ import { loadEnv } from './config/env.js';
 import healthRouter from './routes/health.js';
 import authRouter from './routes/auth.js';
 import entriesRouter from './routes/entries.js';
+import foodsRouter from './routes/foods.js';
 import goalsRouter from './routes/goals.js';
 import weightsRouter from './routes/weights.js';
 import { requireAuth } from './middleware/requireAuth.js';
@@ -28,6 +29,7 @@ export function createApp() {
   // requireAuth mounted here rather than per-route: every entry, goal and
   // weight is owned by a user, so there is no unauthenticated path worth
   // leaving open by accident.
+  app.use('/api/foods', requireAuth, foodsRouter);
   app.use('/api/entries', requireAuth, entriesRouter);
   app.use('/api/goals', requireAuth, goalsRouter);
   app.use('/api/weights', requireAuth, weightsRouter);
